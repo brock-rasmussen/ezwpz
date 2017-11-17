@@ -168,7 +168,7 @@ class EZAdmin_Page {
     /**
      * Enqueue scripts if necessary.
      */
-    protected function enqueue_scripts() {
+    public function enqueue_scripts() {
         if ( in_array( 'color', $this->settings_types ) )
             wp_enqueue_script( "{$this->menu_slug}-color-picker", plugins_url( 'scripts/color-picker.js', __FILE__ ), [ 'wp-color-picker' ], false, true );
 
@@ -179,7 +179,7 @@ class EZAdmin_Page {
     /**
      * Enqueue styles if necessary.
      */
-    protected function enqueue_styles() {
+    public function enqueue_styles() {
         if ( in_array( 'color', $this->settings_types ) )
             wp_enqueue_style( 'wp-color-picker' );
     }
@@ -187,7 +187,7 @@ class EZAdmin_Page {
     /**
      * Process settings file to generate sections and settings.
      */
-    protected function add_settings() {
+    public function add_settings() {
         $menu_slug = $this->menu_slug;
 
         foreach ( $this->settings_schema as $section ) :
@@ -260,7 +260,7 @@ class EZAdmin_Page {
      *
      * @param $section array
      */
-    protected function section_callback( $section ) {
+    public function section_callback( $section ) {
         $i = array_search( $section['id'], $this->sections );
         if ( $i !== false )
             echo $this->settings_schema[$i]['info'];
@@ -271,7 +271,7 @@ class EZAdmin_Page {
      *
      * @param $field_args array
      */
-    protected function field_callback( $field_args ) {
+    public function field_callback( $field_args ) {
         if ( ! isset( $field_args['setting'] ) && ! isset( $field_args['setting']['type'] ) && ! isset( $field_args['setting']['id'] ) && ! isset( $field_args['setting']['label'] ) ) {
             echo 'A <code>type</code>, <code>id</code>, and <code>label</code> are required for on each setting.';
             return;
