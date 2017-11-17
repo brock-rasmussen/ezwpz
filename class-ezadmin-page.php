@@ -1,13 +1,6 @@
 <?php
 class EZAdmin_Page {
     /**
-     * Text domain.
-     *
-     * @var string
-     */
-    protected $domain;
-
-    /**
      * Hook suffix.
      *
      * @var string
@@ -98,7 +91,6 @@ class EZAdmin_Page {
      */
     public function __construct( $args = [] ) {
         $args = wp_parse_args( $args, [
-            'domain' => '',
             'icon_url' => 'none',
             'menu_slug' => '',
             'menu_title' => '',
@@ -112,7 +104,6 @@ class EZAdmin_Page {
         if ( empty( $args['menu_slug'] ) || empty( $args['settings_schema'] ) )
             return;
 
-        $this->domain = $args['domain'];
         $this->icon_url = $args['icon_url'];
         $this->menu_slug = $args['menu_slug'];
         $this->menu_title = $args['menu_title'];
@@ -179,7 +170,7 @@ class EZAdmin_Page {
      */
     protected function enqueue_scripts() {
         if ( in_array( 'color', $this->settings_types ) )
-            wp_enqueue_script( "{$this->menu_slug}-color-picker", plugins_url( 'color-picker.js', __FILE__ ), [ 'wp-color-picker' ], false, true );
+            wp_enqueue_script( "{$this->menu_slug}-color-picker", plugins_url( 'scripts/color-picker.js', __FILE__ ), [ 'wp-color-picker' ], false, true );
 
         if ( in_array( 'image_picker', $this->settings_types ) )
             wp_enqueue_media();
@@ -197,23 +188,22 @@ class EZAdmin_Page {
      * Process settings file to generate sections and settings.
      */
     protected function add_settings() {
-        $domain = $this->domain;
         $menu_slug = $this->menu_slug;
 
         foreach ( $this->settings_schema as $section ) :
             if ( in_array( $section['id'], $this->sections ) )
-                wp_die( sprintf( __( 'Duplicate section ID. Section IDs must be unique. ID <code>%s</code> already exists.', $domain ), $section['id'] ), __( 'Duplicate section ID', $domain ) );
+                wp_die( sprintf( 'Duplicate section ID. Section IDs must be unique. ID <code>%s</code> already exists.', $section['id'] ), 'Duplicate section ID' );
 
             $this->sections[] = $section['id'];
 
             $section_callback = apply_filters( "{$menu_slug}_add_settings_section_callback", [ $this, 'section_callback' ] );
             $section_callback = apply_filters( "{$menu_slug}_add_settings_section_callback-{$section['id']}", $section_callback );
 
-            add_settings_section( $section['id'], __( $section['label'], $domain ), $section_callback, $menu_slug );
+            add_settings_section( $section['id'], $section['label'], $section_callback, $menu_slug );
 
             foreach ( $section['settings'] as $setting ) :
                 if ( in_array( $setting['id'], $this->settings ) )
-                    wp_die( sprintf( __( 'Duplicate setting ID. Setting IDs must be unique. ID <code>%s</code> already exists.', $domain ), $setting['id'] ), __( 'Duplicate setting ID', $domain ) );
+                    wp_die( sprintf( 'Duplicate setting ID. Setting IDs must be unique. ID <code>%s</code> already exists.', $setting['id'] ), 'Duplicate setting ID' );
 
                 $this->settings[] = $setting['id'];
 
@@ -260,7 +250,7 @@ class EZAdmin_Page {
                 $settings_callback = apply_filters( "{$menu_slug}_add_settings_field_callback-{$setting['id']}", $settings_callback );
 
                 register_setting( $menu_slug, $setting['id'], $register_args );
-                add_settings_field( $setting['id'], __( $setting['label'], $domain ), $settings_callback, $menu_slug, $section['id'], $field_args );
+                add_settings_field( $setting['id'], $setting['label'], $settings_callback, $menu_slug, $section['id'], $field_args );
             endforeach;
         endforeach;
     }
@@ -283,7 +273,7 @@ class EZAdmin_Page {
      */
     protected function field_callback( $field_args ) {
         if ( ! isset( $field_args['setting'] ) && ! isset( $field_args['setting']['type'] ) && ! isset( $field_args['setting']['id'] ) && ! isset( $field_args['setting']['label'] ) ) {
-            _e( 'A <code>type</code>, <code>id</code>, and <code>label</code> are required for on each setting.', $this->domain );
+            echo 'A <code>type</code>, <code>id</code>, and <code>label</code> are required for on each setting.';
             return;
         }
 
@@ -322,11 +312,10 @@ class EZAdmin_Page {
      */
     protected function datalist( $setting ) {
         if ( ! isset( $setting['options'] ) ) {
-            _e( '<code>select</code> fields require an <code>options</code> property.', $this->domain );
+            echo '<code>select</code> fields require an <code>options</code> property.';
             return;
         }
 
-        $domain = $this->domain;
         $id = $setting['id'];
         $menu_slug = $this->menu_slug;
 
@@ -334,7 +323,7 @@ class EZAdmin_Page {
 
         $options = '';
         foreach( $setting['options'] as $option ) {
-            $options .= $this->option( __( $option['value'], $domain ) );
+            $options .= $this->option( $option['value'] );
         }
 
         $output = sprintf( '<datalist %s>%s</datalist>', $attributes, $options );
@@ -351,17 +340,16 @@ class EZAdmin_Page {
      */
     protected function dropdown( $setting, $value ) {
         if ( ! isset( $setting['options'] ) ) {
-            _e( '<code>select</code> fields require an <code>options</code> property.', $this->domain );
+            echo '<code>select</code> fields require an <code>options</code> property.';
             return;
         }
 
-        $domain = $this->domain;
         $id = $setting['id'];
         $menu_slug = $this->menu_slug;
 
         $attributes = "id='{$id}' name='{$id}'";
 
-        $options = $this->option( -1, __( '— Select —', $domain ), $value );
+        $options = $this->option( -1, '— Select —', $value );
         foreach ( $setting['options'] as $option ) {
             if ( ! isset( $option['value'] ) )
                 return;
@@ -383,12 +371,11 @@ class EZAdmin_Page {
      * @param $value   string Current value
      */
     protected function dropdown_categories( $setting, $value ) {
-        $domain = $this->domain;
         $id = $setting['id'];
         $menu_slug = $this->menu_slug;
 
         $dropdown_args = apply_filters( "{$menu_slug}_dropdown_category", [
-            'show_option_none' => __( '— Select —', $domain ),
+            'show_option_none' => '— Select —',
             'orderby' => 'name',
         ] );
 
@@ -432,11 +419,10 @@ class EZAdmin_Page {
      * @param $value   string Current value
      */
     protected function dropdown_pages( $setting, $value ) {
-        $domain = $this->domain;
         $id = $setting['id'];
         $menu_slug = $this->menu_slug;
 
-        $dropdown_args = apply_filters( "{$menu_slug}_dropdown_category", [ 'show_option_none' => __( '— Select —', $domain ) ] );
+        $dropdown_args = apply_filters( "{$menu_slug}_dropdown_category", [ 'show_option_none' => '— Select —' ] );
         $dropdown_args = apply_filters( "{$menu_slug}_dropdown_category-{$id}", $dropdown_args );
 
         // Don't allow the id, name, or selected to be overwritten in the filter.
@@ -561,7 +547,7 @@ class EZAdmin_Page {
      */
     protected function option( $value , $label = null, $selected = null ) {
         if ( $label ) {
-            return sprintf( '<option value="%s" %s>%s</option>', esc_attr( $value ), selected( $value, $selected, false ), __( $label, $this->domain ) );
+            return sprintf( '<option value="%s" %s>%s</option>', esc_attr( $value ), selected( $value, $selected, false ), $label );
         }
         return sprintf( '<option value="%s">', esc_attr( $value ) );
     }
@@ -574,11 +560,10 @@ class EZAdmin_Page {
      */
     protected function selection_list( $setting, $value ) {
         if ( ! isset( $setting['options'] ) ) {
-            _e( '<code>checkbox</code> and <code>radio</code> fields require an <code>options</code> property.', $this->domain );
+            echo '<code>checkbox</code> and <code>radio</code> fields require an <code>options</code> property.';
             return;
         }
 
-        $domain = $this->domain;
         $id = $setting['id'];
         $menu_slug = $this->menu_slug;
 
@@ -588,10 +573,10 @@ class EZAdmin_Page {
                 return;
 
             $input = $this->input( $setting, $option['value'], $value );
-            $options .= sprintf( '<p><label>%s %s</label>', $input, __( $option['label'], $domain ) );
+            $options .= sprintf( '<p><label>%s %s</label>', $input, $option['label'] );
         }
 
-        $output = sprintf( '<fieldset><legend class="screen-reader-text">%s</legend>%s</fieldset>', __( $setting['label'], $domain ), $options );
+        $output = sprintf( '<fieldset><legend class="screen-reader-text">%s</legend>%s</fieldset>', $setting['label'], $options );
         $output = apply_filters( "{$menu_slug}_input_list", $output );
         $output = apply_filters( "{$menu_slug}_input_list-{$id}", $output );
         echo $output;
