@@ -7,66 +7,63 @@
 class EZAdmin_Setting {
   /**
    * Page slug (i.e. $option_group).
-   * @var string
+   *
+   * @var EZAdmin_Settings_Page
    */
   protected $page;
 
   /**
    * Option slug (i.e. $option_name).
+   *
    * @var string
    */
   protected $id;
 
   /**
    * Data type associated with this setting. 'string', 'boolean', 'integer', or 'number'.
+   *
    * @var string
    */
-  protected $type;
+  protected $type = 'string';
 
   /**
    * Description of data attached to this setting.
+   *
    * @var string
    */
-  protected $description;
-
-  /**
-   * Function to sanitize the option's value.
-   * @var callable
-   */
-  protected $sanitize_callback;
+  protected $description = '';
 
   /**
    * Whether data from this setting should be included in the REST API.
+   *
    * @var bool
    */
-  protected $show_in_rest;
+  protected $show_in_rest = false;
 
   /**
    * Settings fields attached to this setting.
+   *
    * @var array
    */
   protected $fields = [];
 
   /**
    * EZAdmin_Setting constructor.
-   * @param string $page
+   *
+   * @param EZAdmin_Settings_Page $page
    * @param string $id
    * @param array $args
    */
   public function __construct( $page, $id, $args = [] ) {
-    $args = wp_parse_args( $args, [
-      'type' => 'string',
-      'description' => '',
-      'sanitize_callback' => [ $this, 'sanitize' ],
-      'show_in_rest' => false,
-    ]);
+    $keys = array_keys( get_object_vars( $this ) );
+    foreach( $keys as $key ) {
+      if ( isset( $args[ $key ] ) ) {
+        $this->$key = $args[ $key ];
+      }
+    }
 
     $this->page = $page;
     $this->id = $id;
-    $this->type = $args['type'];
-    $this->description = $args['description'];
-    $this->sanitize_callback = $args['sanitize_callback'];
-    $this->show_in_rest = $args['show_in_rest'];
 
     add_action( 'admin_init', [ $this, 'init' ] );
   }
@@ -78,42 +75,49 @@ class EZAdmin_Setting {
     $args = [
       'type' => $this->type,
       'description' => $this->description,
-      'sanitize_callback' => $this->sanitize_callback,
+      'sanitize_callback' => [ $this, 'sanitize' ],
       'show_in_rest' => $this->show_in_rest,
       'default' => $this->get_default(),
     ];
-    register_setting( $this->page, $this->id, $args );
+    register_setting( $this->page->menu_slug, $this->id, $args );
   }
 
   /**
-   * Sanitize the setting.
-   */
-  public function sanitize($data) {
-    $sanitized = [];
-    foreach ( $this->fields as $i => $field ) {
-      $sanitized[] = $field->sanitize( $data[$i] );
-    }
-
-    return $sanitized;
-  }
-
-  /**
-   * Get the default of the setting.
+   * Get the default value.
+   *
+   * @return array
    */
   public function get_default() {
     $default = [];
-    foreach( $this->fields as $i => $field ) {
-      $default[$field->get_id()] = $field->get_default();
+    foreach ( $this->fields as $field ) {
+      $default[$field->id] = $field->default;
     }
 
     return $default;
   }
 
   /**
+   * Sanitize the setting.
+   *
+   * @param $data
+   *
+   * @return array
+   */
+  public function sanitize( $data ) {
+    $sanitized = [];
+    foreach ( $this->fields as $field ) {
+      $sanitized[$field->id] = $field->sanitize( $data[$i] );
+    }
+
+    return $sanitized;
+  }
+
+  /**
    * Attach a field to the setting.
+   *
+   * @param EZAdmin_Settings_Control $field
    */
   public function add_settings_field( $field ) {
-    if ( $field instanceof EZAdmin_Settings_Field )
-      $this->fields[] = $field;
+    $this->fields[] = $field;
   }
 }

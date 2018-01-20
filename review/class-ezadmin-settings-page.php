@@ -1,15 +1,24 @@
 <?php
+if ( ! class_exists( 'EZAdmin_Menu_Page' ) ) {
+  require_once 'class-ezadmin-menu-page.php';
+}
+
 class EZAdmin_Settings_Page extends EZAdmin_Menu_Page {
   /**
-   * Page sections.
+   * Registered instances of EZAdmin_Settings_Section.
+   *
    * @var array
    */
   public $sections = [];
 
   /**
-   * EZAdmin_Settings_Page constructor.
+   * Constructor.
+   *
    * @param string $menu_slug
-   * @param array $args
+   * @param array $args {
+   *  Optional. Arguments to override class property defaults.
+   *
+   * @type
    */
   public function __construct( $menu_slug, array $args = [] ) {
     parent::__construct( $menu_slug, $args );
@@ -20,14 +29,16 @@ class EZAdmin_Settings_Page extends EZAdmin_Menu_Page {
    * Render the page.
    */
   public function render() {
-    $option_group = $page = $this->menu_slug;
     ?>
     <div class="wrap">
       <h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+      <?php $this->the_description(); ?>
       <form method="post" action="options.php">
         <?php
-        settings_fields( $option_group );
-        do_settings_sections( $page );
+        settings_fields( $this->menu_slug );
+        foreach ( $this->sections as $section ) {
+          $section->do_settings_section();
+        }
         submit_button();
         ?>
       </form>
@@ -37,17 +48,18 @@ class EZAdmin_Settings_Page extends EZAdmin_Menu_Page {
 
   /**
    * Add settings section to the page.
+   *
    * @param string $id
    * @param array $args
+   *
    * @return EZAdmin_Settings_Section
    */
   public function add_settings_section( $id, $args = [] ) {
     if ( $id instanceof EZAdmin_Settings_Section ) {
       $section = $id;
     } else {
-      $section = new EZAdmin_Settings_Section( $id, $this, $args );
+      $section = new EZAdmin_Settings_Section( $this, $id, $args );
     }
-
     $this->sections[] = $section;
     return $section;
   }

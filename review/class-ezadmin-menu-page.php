@@ -1,67 +1,85 @@
 <?php
-class EZAdmin_Menu_Page {
+class EZAdmin_Menu_Page1 {
   /**
    * Text to be displayed in the page title tags.
+   *
    * @var string
    */
   public $page_title = '';
 
   /**
    * Text to be used for the menu.
+   *
    * @var string
    */
   public $menu_title = '';
 
   /**
    * Capability required for this menu to be displayed to the user.
+   *
    * @var string
    */
   public $capability = 'manage_options';
 
   /**
    * The slug name to refer to this menu by.
+   *
    * @var string
    */
   public $menu_slug;
 
   /**
-   * The icon to be used for this menu (a.k.a. $icon_url).
+   * Page description.
+   *
+   * @var string
+   */
+  public $description = '';
+
+  /**
+   * The icon to be used for this menu.
+   *
    * @var string
    */
   public $icon_url = '';
 
   /**
    * The position in the menu this should appear.
+   *
    * @var int
    */
   public $position = null;
 
   /**
-   * Submenu pages.
+   * Registered instances of EZAdmin_Menu_Page with $this->menu_slug as the parent_slug.
+   *
    * @var array
    */
   public $submenu_pages = [];
 
   /**
    * The parent menu item.
+   *
    * @var EZAdmin_Settings_Page|string
    */
   public $parent_slug;
 
   /**
    * The queue of scripts for the page.
+   *
    * @var array
    */
   public $scripts = [];
 
   /**
    * The queue of styles for the page.
+   *
    * @var array
    */
   public $styles = [];
 
   /**
    * EZAdmin_Menu_Page constructor.
+   *
    * @param string $menu_slug
    * @param array $args
    */
@@ -100,13 +118,17 @@ class EZAdmin_Menu_Page {
 
   /**
    * Add a submenu page.
+   *
    * @param string $menu_slug
    * @param array $args
+   *
    * @return EZAdmin_Menu_Page|false
    */
   public function add_submenu_page( $menu_slug, $args = [] ) {
+    // submenu pages can't have submenu pages.
     if ( $this->parent_slug ) return false;
 
+    // if constructor provided, use that, otherwise instantiate a new EZAdmin_Menu_Page
     if ( $menu_slug instanceof EZAdmin_Menu_Page ) {
       $submenu_page = $menu_slug;
     } else {
@@ -142,7 +164,27 @@ class EZAdmin_Menu_Page {
   public function render() {}
 
   /**
+   * Get the description.
+   *
+   * @return bool|string
+   */
+  public function get_the_description() {
+    if ( ! empty( $this->description ) ) {
+      return apply_filters( 'the_content', $this->description );
+    }
+    return false;
+  }
+
+  /**
+   * Output the description.
+   */
+  public function the_description() {
+    echo $this->get_the_description();
+  }
+
+  /**
    * Add a script to the queue for the page.
+   *
    * @param string $handle
    * @param string $src
    * @param array $deps
@@ -155,6 +197,7 @@ class EZAdmin_Menu_Page {
 
   /**
    * Add a stylesheet to the queue for the page.
+   *
    * @param string $handle
    * @param string $src
    * @param array $deps
