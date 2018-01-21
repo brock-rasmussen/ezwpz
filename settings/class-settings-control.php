@@ -47,7 +47,7 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
 
     /**
      * Control description.
-     * @var string
+     * @var mixed
      */
     public $description = '';
 
@@ -87,9 +87,6 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
       if (!isset($args['type']))
         $args['type'] = 'text';
 
-      if (isset($args['label']))
-        $args['input_attrs']['title'] = $args['label'];
-
       if ($args['type'] === 'textarea') {
         $args['input_attrs']['class'][] = 'large-text';
         $args['input_attrs']['rows'] = 10;
@@ -115,9 +112,6 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
           $this->$key = $args[$key];
         }
       }
-
-      if ($this->type === 'checkbox' && !is_int($this->default))
-        $this->default = 0;
 
       $this->page = $page;
       $this->section = $section;
@@ -203,24 +197,57 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
     public function render() {
       $name = $this->is_single() ? $this->setting : "{$this->setting}[{$this->id}]";
       $type = $this->type === 'color' ? 'text' : $this->type;
+
+      if (!empty($this->description))
+        $this->input_attrs['aria-describedby'] = "{$this->id}-description";
+
       switch ($this->type) {
         case 'checkbox':
           ?>
-          <p>
-            <label for="<?php echo esc_attr($this->id); ?>">
-              <input id="<?php echo esc_attr($this->id); ?>" name="<?php echo esc_attr($name); ?>" type="checkbox" value="<?php echo esc_attr($this->value()); ?>"<?php \checked($this->value()); ?>>
-              <?php echo esc_html($this->label); ?>
-            </label>
-          </p>
+          <label for="<?php echo esc_attr($this->id); ?>">
+            <input id="<?php echo esc_attr($this->id); ?>" name="<?php echo esc_attr($name); ?>" type="checkbox" value="<?php echo esc_attr($this->value()); ?>"<?php \checked($this->value()); ?>>
+            <?php echo esc_html($this->label); ?>
+          </label>
           <?php
+          $this->description();
           break;
-        case 'richtext':
-          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}", ['textarea_name' => $name]);
-          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}-{$this->section}", $richtext_args);
-          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}-{$this->section}-{$this->field}", $richtext_args);
-          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}-{$this->section}-{$this->field}-{$this->id}", $richtext_args);
-          wp_editor($this->value(), $this->id, $richtext_args);
+
+        case 'dropdown-categories':
+          $dropdown_categories_args = [
+            'class' => isset($this->input_attrs['class']) ? join(' ', $this->input_attrs['class']) : '',
+            'show_option_none' => __('&mdash; Select &mdash;'),
+            'option_none_value' => 0
+          ];
+          $dropdown_categories_args = \apply_filters("ezwpz_settings_dropdown_categories_control-{$this->page}", $dropdown_categories_args);
+          $dropdown_categories_args = \apply_filters("ezwpz_settings_dropdown_categories_control-{$this->page}-{$this->section}", $dropdown_categories_args);
+          $dropdown_categories_args = \apply_filters("ezwpz_settings_dropdown_categories_control-{$this->page}-{$this->section}-{$this->field}", $dropdown_categories_args);
+          $dropdown_categories_args = \apply_filters("ezwpz_settings_dropdown_categories_control-{$this->page}-{$this->section}-{$this->field}-{$this->id}", $dropdown_categories_args);
+          $dropdown_categories_args = array_merge($dropdown_categories_args, [
+            'id' => $this->id,
+            'name' => $name,
+            'selected' => $this->value(),
+          ]);
+          wp_dropdown_categories($dropdown_categories_args);
           break;
+
+        case 'dropdown-pages':
+          $dropdown_pages_args = [
+            'class' => isset($this->input_attrs['class']) ? join(' ', $this->input_attrs['class']) : '',
+            'show_option_none' => __('&mdash; Select &mdash;'),
+            'option_none_value' => 0
+          ];
+          $dropdown_pages_args = \apply_filters("ezwpz_settings_dropdown_pages_control-{$this->page}", $dropdown_pages_args);
+          $dropdown_pages_args = \apply_filters("ezwpz_settings_dropdown_pages_control-{$this->page}-{$this->section}", $dropdown_pages_args);
+          $dropdown_pages_args = \apply_filters("ezwpz_settings_dropdown_pages_control-{$this->page}-{$this->section}-{$this->field}", $dropdown_pages_args);
+          $dropdown_pages_args = \apply_filters("ezwpz_settings_dropdown_pages_control-{$this->page}-{$this->section}-{$this->field}-{$this->id}", $dropdown_pages_args);
+          $dropdown_pages_args = array_merge($dropdown_pages_args, [
+            'id' => $this->id,
+            'name' => $name,
+            'selected' => $this->value(),
+          ]);
+          wp_dropdown_pages($dropdown_pages_args);
+          break;
+
         case 'radio':
           if (empty($this->choices))
             return;
@@ -237,29 +264,51 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
                 </label>
               </p>
             <?php endforeach; ?>
-            <?php if (!empty($this->description)) : ?>
-              <p id="<?php echo esc_attr($this->id); ?>-description" class="description"><?php echo $this->description; ?></p>
-            <?php endif; ?>
+            <?php $this->description(); ?>
           </fieldset>
           <?php
           break;
-        case 'select':
-          ?>
-          <?php
+
+        case 'richtext':
+          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}", []);
+          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}-{$this->section}", $richtext_args);
+          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}-{$this->section}-{$this->field}", $richtext_args);
+          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}-{$this->section}-{$this->field}-{$this->id}", $richtext_args);
+          $richtext_args['textarea_name'] = $name;
+          wp_editor($this->value(), $this->id, $richtext_args);
+          $this->description();
           break;
+
+        case 'select':
+          if (empty($this->choices))
+            return;
+          ?>
+          <?php if (!empty($this->label)) : ?>
+            <label for="<?php echo esc_attr($this->id); ?>"><?php echo esc_html($this->label); ?></label>
+          <?php endif; ?>
+          <select id="<?php echo esc_attr($this->id); ?>" name="<?php echo esc_attr($name); ?>"<?php $this->input_attrs(); ?>>
+            <?php foreach ($this->choices as $value => $label) : ?>
+              <option value="<?php echo esc_attr($value); ?>"<?php selected($this->value(), $value); ?>><?php echo esc_html($label); ?></option>
+            <?php endforeach; ?>
+          </select>
+          <?php
+          $this->description();
+          break;
+
         case 'textarea':
           ?>
           <textarea id="<?php echo esc_attr($this->id); ?>" name="<?php echo esc_attr($name); ?>"<?php $this->input_attrs(); ?>><?php echo esc_textarea($this->value()); ?></textarea>
           <?php
+          $this->description();
           break;
+
         default:
           if (!$this->is_single()) : ?>
             <label for="<?php echo esc_attr($this->id); ?>"><?php echo esc_html($this->label); ?></label>
           <?php endif; ?>
           <input id="<?php echo esc_attr($this->id); ?>" name="<?php echo esc_attr($name); ?>" type="<?php echo esc_attr($type); ?>" value="<?php echo esc_attr($this->value()); ?>"<?php $this->input_attrs(); ?>>
-          <?php if (!empty($this->description)) : ?>
-            <p id="<?php echo esc_attr($this->id); ?>-description" class="description"><?php echo $this->description; ?></p>
-          <?php endif;
+          <?php
+          $this->description();
           break;
       }
     }
@@ -292,6 +341,17 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
           $value = \join(' ', $value);
         \printf(' %s="%s"', $attr, \esc_attr($value));
       }
+    }
+
+    /**
+     * Render the description paragraph.
+     */
+    public function description() {
+      if (empty($this->description))
+        return;
+      ?>
+      <p id="<?php echo esc_attr($this->id); ?>-description" class="description"><?php echo $this->description; ?></p>
+      <?php
     }
 
     /**

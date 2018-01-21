@@ -1,6 +1,6 @@
 <?php
 // CORE
-require_once 'class-page.php';
+require_once 'core/class-page.php';
 
 // SETTINGS
 require_once 'settings/class-setting.php';
