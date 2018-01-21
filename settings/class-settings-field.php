@@ -70,23 +70,15 @@ if (!\class_exists('EZWPZ_Settings\Field')) {
      * @param $args
      */
     public function render_controls($args) {
-      global $ezwpz_settings_controls;
-
-      $page = isset($args['ezwpz']['page']) ? $args['ezwpz']['page'] : false;
-      $section = isset($args['ezwpz']['section']) ? $args['ezwpz']['section'] : false;
-      $field = isset($args['ezwpz']['field']) ? $args['ezwpz']['field'] : false;
-
-      if ($page && $section && $field) {
-        $controls = isset($ezwpz_settings_controls[$page][$section][$field]) ? $ezwpz_settings_controls[$page][$section][$field] : [];
-
+      if (isset($args['ezwpz_controls']) && \is_array($args['ezwpz_controls'])) {
         \ob_start();
-        foreach ($controls as $control) {
+        foreach ($args['ezwpz_controls'] as $control) {
           if (is_callable($control))
             \call_user_func($control);
         }
         $field_contents = \ob_get_clean();
 
-        if (\count($controls) > 1) {
+        if (\count($args['ezwpz_controls']) > 1) {
           ?>
           <fieldset>
             <legend class="screen-reader-text"><?php echo $this->title; ?></legend>

@@ -84,6 +84,9 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
      * @param array $args
      */
     public function __construct($page, $section, $field, $id, $args) {
+      if (!isset($args['type']))
+        $args['type'] = 'text';
+
       if (isset($args['label']))
         $args['input_attrs']['title'] = $args['label'];
 
@@ -160,8 +163,9 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
      * Add control to the field.
      */
     public function add_control() {
-      global $ezwpz_settings_controls;
-      $ezwpz_settings_controls[$this->page][$this->section][$this->field][$this->id] = [$this, 'render'];
+      global $wp_registered_settings, $wp_settings_fields;
+      $wp_registered_settings[$this->setting]['ezwpz_controls'][] = $this->id;
+      $wp_settings_fields[$this->page][$this->section][$this->field]['args']['ezwpz_controls'][$this->id] = [$this, 'render'];
     }
 
     /**
@@ -204,22 +208,17 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
           ?>
           <p>
             <label for="<?php echo esc_attr($this->id); ?>">
-              <input
-                id="<?php echo esc_attr($this->id); ?>"
-                name="<?php echo esc_attr($name); ?>"
-                type="checkbox"
-                value="<?php echo esc_attr($this->value()); ?>"
-              <?php \checked($this->value()); ?>
+              <input id="<?php echo esc_attr($this->id); ?>" name="<?php echo esc_attr($name); ?>" type="checkbox" value="<?php echo esc_attr($this->value()); ?>"<?php \checked($this->value()); ?>>
               <?php echo esc_html($this->label); ?>
             </label>
           </p>
           <?php
           break;
         case 'richtext':
-          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$page}", ['textarea_name' => $name]);
-          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$page}-{$section}", $richtext_args);
-          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$page}-{$section}-{$field}", $richtext_args);
-          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$page}-{$section}-{$field}-{$id}", $richtext_args);
+          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}", ['textarea_name' => $name]);
+          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}-{$this->section}", $richtext_args);
+          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}-{$this->section}-{$this->field}", $richtext_args);
+          $richtext_args = \apply_filters("ezwpz_settings_richtext_control-{$this->page}-{$this->section}-{$this->field}-{$this->id}", $richtext_args);
           wp_editor($this->value(), $this->id, $richtext_args);
           break;
         case 'radio':
@@ -233,12 +232,7 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
             <?php foreach ($this->choices as $value => $label) : ?>
               <p>
                 <label for="<?php echo esc_attr($this->id); ?>-<?php echo esc_attr($value); ?>">
-                  <input
-                    id="<?php echo esc_attr($this->id); ?>-<?php echo esc_attr($value); ?>"
-                    name="<?php echo esc_attr($name); ?>"
-                    type="radio"
-                    value="<?php echo esc_attr($value); ?>"
-                    <?php \checked($this->value()); ?>>
+                  <input id="<?php echo esc_attr($this->id); ?>-<?php echo esc_attr($value); ?>" name="<?php echo esc_attr($name); ?>" type="radio" value="<?php echo esc_attr($value); ?>"<?php \checked($this->value()); ?>>
                   <?php echo esc_html($label); ?>
                 </label>
               </p>
@@ -255,26 +249,16 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
           break;
         case 'textarea':
           ?>
-          <textarea
-            id="<?php echo esc_attr($this->id); ?>"
-            name="<?php echo esc_attr($name); ?>"
-            <?php $this->input_attrs(); ?>>
-            <?php echo esc_textarea($this->value()); ?>
-          </textarea>
+          <textarea id="<?php echo esc_attr($this->id); ?>" name="<?php echo esc_attr($name); ?>"<?php $this->input_attrs(); ?>><?php echo esc_textarea($this->value()); ?></textarea>
           <?php
           break;
         default:
           if (!$this->is_single()) : ?>
             <label for="<?php echo esc_attr($this->id); ?>"><?php echo esc_html($this->label); ?></label>
           <?php endif; ?>
-          <input
-            id="<?php echo esc_attr($this->id); ?>"
-            name="<?php echo esc_attr($name); ?>"
-            type="<?php echo esc_attr($type); ?>"
-            value="<?php echo esc_attr($this->value()); ?>"
-            <?php $this->input_attrs(); ?>>
+          <input id="<?php echo esc_attr($this->id); ?>" name="<?php echo esc_attr($name); ?>" type="<?php echo esc_attr($type); ?>" value="<?php echo esc_attr($this->value()); ?>"<?php $this->input_attrs(); ?>>
           <?php if (!empty($this->description)) : ?>
-            <p class="description"><?php echo $this->description; ?></p>
+            <p id="<?php echo esc_attr($this->id); ?>-description" class="description"><?php echo $this->description; ?></p>
           <?php endif;
           break;
       }
@@ -315,8 +299,11 @@ if (!\class_exists('EZWPZ_Settings\Control')) {
      * @return bool
      */
     public function is_single() {
-      global $ezwpz_settings_controls;
-      return \count($ezwpz_settings_controls[$this->page][$this->section][$this->field]) === 1;
+      if (!isset($this->setting))
+        return true;
+
+      global $wp_registered_settings;
+      return \count($wp_registered_settings[$this->setting]['ezwpz_controls']) === 1;
     }
   }
 }
