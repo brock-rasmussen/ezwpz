@@ -1,8 +1,5 @@
 <?php
-namespace EZWPZ\Admin\Settings;
-
-require_once EZWPZ_PLUGIN_DIR . '/core/trait-priority.php';
-
+namespace EZWPZ\Settings;
 use EZWPZ\Core\Priority;
 
 class Section {

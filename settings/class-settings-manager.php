@@ -1,12 +1,11 @@
 <?php
-namespace EZWPZ\Admin\Settings;
+namespace EZWPZ\Settings;
 
-require_once EZWPZ_PLUGIN_DIR . '/core/trait-singleton.php';
+require_once 'utilities.php';
 require_once 'class-setting.php';
 require_once 'class-section.php';
 require_once 'class-field.php';
 require_once 'class-control.php';
-
 use EZWPZ\Core\Singleton;
 
 class Manager {
@@ -40,10 +39,18 @@ class Manager {
    * Manager constructor.
    */
   protected function __construct() {
+    \add_action('init', [$this, 'init']);
     \add_action('admin_init', [$this, 'init_settings']);
     \add_action('admin_init', [$this, 'init_settings_sections']);
     \add_action('admin_init', [$this, 'init_settings_fields']);
     \add_action('admin_init', [$this, 'init_settings_controls']);
+  }
+
+  /**
+   * Add action that plugins and themes can tie into to easily access the class.
+   */
+  public function init() {
+    \do_action('ezwpz_settings', self::get_instance());
   }
 
   /**
@@ -66,9 +73,9 @@ class Manager {
    * @return bool|mixed
    */
   public function get_setting($id) {
-    if (!isset($this->settings[$id]))
-      return false;
-    return $this->settings[$id];
+    if (isset($this->settings[$id]))
+      return $this->settings[$id];
+    return false;
   }
 
   /**
@@ -114,9 +121,9 @@ class Manager {
    * @return bool|mixed
    */
   public function get_section($page, $id) {
-    if (!isset($this->sections[$page][$id]))
-      return false;
-    return $this->sections[$page][$id];
+    if (isset($this->sections[$page][$id]))
+      return $this->sections[$page][$id];
+    return false;
   }
 
   /**
@@ -167,9 +174,9 @@ class Manager {
    * @return bool|mixed
    */
   public function get_field($page, $section, $id) {
-    if (!isset($this->fields[$page][$section][$id]))
-      return false;
-    return $this->fields[$page][$section][$id];
+    if (isset($this->fields[$page][$section][$id]))
+      return $this->fields[$page][$section][$id];
+    return false;
   }
 
   /**
@@ -224,9 +231,9 @@ class Manager {
    * @return bool|mixed
    */
   public function get_control($page, $section, $field, $id) {
-    if (!isset($this->controls[$page][$section][$field][$id]))
-      return false;
-    return $this->controls[$page][$section][$field][$id];
+    if (isset($this->controls[$page][$section][$field][$id]))
+      return $this->controls[$page][$section][$field][$id];
+    return false;
   }
 
   /**

@@ -1,8 +1,5 @@
 <?php
-namespace EZWPZ\Admin\Settings;
-
-require_once EZWPZ_PLUGIN_DIR . '/core/trait-priority.php';
-
+namespace EZWPZ\Settings;
 use EZWPZ\Core\Priority;
 
 class Control {
@@ -165,6 +162,24 @@ class Control {
       \add_filter("default_option_{$this->setting}", [$this, 'set_default']);
   }
 
+  public function sanitize($data) {
+    if ($this->is_alone_in_setting())
+      $data = call_user_func($this->sanitize_callback, $data);
+    else
+      $data[$this->id] = call_user_func($this->sanitize_callback, $data[$this->id]);
+
+    return $data;
+  }
+
+  public function set_default($data) {
+    if ($this->is_alone_in_setting())
+      $data = $this->default;
+    else
+      $data[$this->id] = $this->default;
+
+    return $data;
+  }
+
   public function the_control($is_alone_in_field) {
     $is_alone_in_setting = $this->is_alone_in_setting();
 
@@ -292,15 +307,6 @@ class Control {
   public function is_alone_in_setting() {
     global $wp_registered_settings;
     return count($wp_registered_settings[$this->setting]['ezwpz']['controls']) < 2;
-  }
-
-  public function sanitize($data) {
-    if ($this->is_alone_in_setting())
-      $data = call_user_func($this->sanitize_callback, $data);
-    else
-      $data[$this->id] = call_user_func($this->sanitize_callback, $data[$this->id]);
-
-    return $data;
   }
 
 }

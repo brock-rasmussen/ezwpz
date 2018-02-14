@@ -1,27 +1,32 @@
 <?php
 /*
-Plugin Name: Easy WPeasy
-Author: Brock Rasmussen
-License: GPL2
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
-*/
+ * Plugin Name: Easy WPeasy
+ * Author: Brock Rasmussen
+ * License: GPL2
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ */
 
-define('EZWPZ_PLUGIN', __FILE__);
-define('EZWPZ_PLUGIN_BASENAME', plugin_basename(EZWPZ_PLUGIN));
-define('EZWPZ_PLUGIN_NAME', trim(dirname(EZWPZ_PLUGIN_BASENAME), '/'));
 define('EZWPZ_PLUGIN_DIR', untrailingslashit(dirname(__FILE__)));
 
-require_once EZWPZ_PLUGIN_DIR . '/admin/menu.php';
-require_once EZWPZ_PLUGIN_DIR . '/admin/settings.php';
+require_once 'class-ezwpz.php';
+
+/**
+ * Function to return the EZWPZ class.
+ * @return EZWPZ
+ */
+function ezwpz() {
+  return EZWPZ::get_instance();
+}
+
+/**
+ * Instantiate EZWPZ.
+ */
+ezwpz();
 
 function ezwpz_menu_example($menu) {
   $menu->add_page('ezwpz_test_page', [
     'page_title' => __('Test Page', 'ezwpz'),
     'menu_title' => __('Test Page', 'ezwpz'),
-  ]);
-  $menu->add_help_tab('test-tab', [
-    'page' => ['ezwpz_test_page'],
-    'content' => 'test content',
   ]);
 }
 add_action('ezwpz_menu', 'ezwpz_menu_example');

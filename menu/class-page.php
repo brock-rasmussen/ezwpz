@@ -1,5 +1,5 @@
 <?php
-namespace EZWPZ\Admin\Menu;
+namespace EZWPZ\Menu;
 
 class Page {
   /**
@@ -25,6 +25,12 @@ class Page {
    * @var string
    */
   public $menu_title = '';
+
+  /**
+   * Text used for the page's submenu title when applicable.
+   * @var string
+   */
+  public $submenu_title = '';
 
   /**
    * Capability required for this menu to be displayed to the user.
@@ -76,6 +82,9 @@ class Page {
       \add_submenu_page($this->parent_slug, $this->page_title, $this->menu_title, $this->capability, $this->id, [$this, 'render']);
     else
       \add_menu_page($this->page_title, $this->menu_title, $this->capability, $this->id, [$this, 'render'], $this->icon_url, $this->position);
+
+    if (!empty($this->submenu_title) && empty($this->parent_slug))
+      \add_submenu_page($this->id, $this->page_title, $this->submenu_title, $this->capability, $this->id, [$this, 'render']);
   }
 
   /**
@@ -90,6 +99,11 @@ class Page {
         <?php
         \settings_fields($page);
         \do_settings_sections($page);
+        ?>
+        <table class="form-table">
+          <?php \do_settings_fields($page, 'default'); ?>
+        </table>
+        <?php
         \submit_button();
         ?>
       </form>

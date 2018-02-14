@@ -1,5 +1,5 @@
 <?php
-namespace EZWPZ\Admin\Settings;
+namespace EZWPZ\Settings;
 
 class Setting {
   /**

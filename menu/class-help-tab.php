@@ -1,5 +1,5 @@
 <?php
-namespace EZWPZ\Admin\Menu;
+namespace EZWPZ\Menu;
 
 class Help_Tab {
   /**
@@ -69,12 +69,6 @@ class Help_Tab {
    * Add help tab to page.
    */
   public function init() {
-    foreach ($this->pages as $page) {
-      if ($hookname = get_plugin_page_hookname($page, $this->manager->get_page($page)->parent_slug)) {
-        echo $hookname;
-      }
-//        add_action("load-{$hookname}")
-//      add_action("load-{$hookname}", )
-    }
+
   }
 }
