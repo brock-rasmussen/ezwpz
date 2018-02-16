@@ -45,6 +45,12 @@ class Page {
   public $icon_url = '';
 
   /**
+   * Callback to render page.
+   * @var mixed
+   */
+  public $callback;
+
+  /**
    * Menu position.
    * @var int|null
    */
@@ -70,6 +76,9 @@ class Page {
       }
     }
 
+    if (!isset($this->callback))
+      $this->callback = [$this, 'render'];
+
     $this->manager = $manager;
     $this->id = $id;
   }
@@ -79,12 +88,12 @@ class Page {
    */
   public function init() {
     if (!empty($this->parent_slug))
-      \add_submenu_page($this->parent_slug, $this->page_title, $this->menu_title, $this->capability, $this->id, [$this, 'render']);
+      \add_submenu_page($this->parent_slug, $this->page_title, $this->menu_title, $this->capability, $this->id, $this->callback);
     else
-      \add_menu_page($this->page_title, $this->menu_title, $this->capability, $this->id, [$this, 'render'], $this->icon_url, $this->position);
+      \add_menu_page($this->page_title, $this->menu_title, $this->capability, $this->id, $this->callback, $this->icon_url, $this->position);
 
     if (!empty($this->submenu_title) && empty($this->parent_slug))
-      \add_submenu_page($this->id, $this->page_title, $this->submenu_title, $this->capability, $this->id, [$this, 'render']);
+      \add_submenu_page($this->id, $this->page_title, $this->submenu_title, $this->capability, $this->id, $this->callback);
   }
 
   /**

@@ -286,17 +286,26 @@ class Manager {
       $this->add_setting($setting, ['page' => $page]);
 
     foreach ($config as $section_id => $section_args) {
+      if (!is_array($section_args))
+        continue;
+
       $section_args['page'] = $page;
       $this->add_section($section_id, $section_args);
 
       if (isset($section_args['fields']) && \is_array($section_args['fields'])) {
         foreach ($section_args['fields'] as $field_id => $field_args) {
+          if (!is_array($field_args))
+            continue;
+
           $field_args['page'] = $page;
           $field_args['section'] = $section_id;
           $this->add_field($field_id, $field_args);
 
           if (isset($field_args['controls']) && \is_array($field_args['controls'])) {
             foreach ($field_args['controls'] as $control_id => $control_args) {
+              if (!is_array($field_args))
+                continue;
+
               $control_args['page'] = $page;
               $control_args['section'] = $section_id;
               $control_args['field'] = $field_id;

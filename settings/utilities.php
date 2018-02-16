@@ -3,9 +3,9 @@ namespace EZWPZ\Settings;
 
 function do_settings_controls($page, $section, $field) {
   global $wp_settings_fields;
-  if (isset($wp_settings_fields[$page][$section][$field]['args']['ezwpz']['controls'])) {
+  if (isset($wp_settings_fields[$page][$section][$field]['args']['ezwpz']['controls']) && \is_array($wp_settings_fields[$page][$section][$field]['args']['ezwpz']['controls'])) {
     $field = $wp_settings_fields[$page][$section][$field];
-    $is_alone_in_field = \count($controls) === 1;
+    $is_alone_in_field = \count($field['args']['ezwpz']['controls']) === 1;
 
     \ob_start();
     foreach ($field['args']['ezwpz']['controls'] as $control) {
