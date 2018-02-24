@@ -259,7 +259,7 @@ class Manager {
     foreach ($this->controls as $page => $sections) {
       foreach ($sections as $section => $fields) {
         foreach ($fields as $field => $controls) {
-          \uasort($fields, [$this, 'sort_priority']);
+          \uasort($controls, [$this, 'sort_priority']);
           foreach ($controls as $control) {
             $control->init();
           }
@@ -294,7 +294,7 @@ class Manager {
 
       if (isset($section_args['fields']) && \is_array($section_args['fields'])) {
         foreach ($section_args['fields'] as $field_id => $field_args) {
-          if (!is_array($field_args))
+          if (!\is_array($field_args))
             continue;
 
           $field_args['page'] = $page;
@@ -303,7 +303,7 @@ class Manager {
 
           if (isset($field_args['controls']) && \is_array($field_args['controls'])) {
             foreach ($field_args['controls'] as $control_id => $control_args) {
-              if (!is_array($field_args))
+              if (!\is_array($field_args))
                 continue;
 
               $control_args['page'] = $page;
