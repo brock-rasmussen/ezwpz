@@ -77,7 +77,7 @@ class Page {
     }
 
     if (!isset($this->callback))
-      $this->callback = [$this, 'render'];
+      $this->callback = 'EZWPZ\Settings\render_page';
 
     $this->manager = $manager;
     $this->id = $id;
@@ -94,30 +94,6 @@ class Page {
 
     if (!empty($this->submenu_title) && empty($this->parent_slug))
       \add_submenu_page($this->id, $this->page_title, $this->submenu_title, $this->capability, $this->id, $this->callback);
-  }
-
-  /**
-   * Callback function to render the page.
-   */
-  public function render() {
-    $page = $this->id;
-    ?>
-    <div class="wrap">
-      <h1><?php echo \esc_html(\get_admin_page_title()); ?></h1>
-      <form method="post" action="/wp-admin/options.php">
-        <?php
-        \settings_fields($page);
-        \do_settings_sections($page);
-        ?>
-        <table class="form-table">
-          <?php \do_settings_fields($page, 'default'); ?>
-        </table>
-        <?php
-        \submit_button();
-        ?>
-      </form>
-    </div>
-    <?php
   }
 
 }

@@ -45,7 +45,7 @@ class Manager {
     else
       $page = new Page($this, $id, $args);
 
-    $this->pages[$id] = $page;
+    $this->pages[$page->id] = $page;
   }
 
   /**
@@ -65,11 +65,7 @@ class Manager {
    * @return bool
    */
   public function remove_page($id) {
-    if (isset($this->pages[$id])) {
-      unset ($this->pages[$id]);
-      return true;
-    }
-    return false;
+    unset ($this->pages[$id]);
   }
 
   /**
@@ -114,11 +110,7 @@ class Manager {
    * @return bool
    */
 //  public function remove_help_tab($id) {
-//    if (isset($this->help_tabs[$id])) {
-//      unset ($this->help_tabs[$id]);
-//      return true;
-//    }
-//    return false;
+//    unset ($this->help_tabs[$id]);
 //  }
 
   /**

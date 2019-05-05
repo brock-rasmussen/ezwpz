@@ -33,7 +33,7 @@ class Control {
    * Field slug where control is displayed.
    * @var string
    */
-  public $field = 'default';
+  public $field;
 
   /**
    * Control slug.
@@ -150,10 +150,24 @@ class Control {
   }
 
   public function init() {
-    global $wp_registered_settings, $wp_settings_fields;
+    global $wp_registered_settings, $ezwpz_settings_controls;
+    if (!isset($this->field))
+      return;
+
     if (isset($this->setting))
       $wp_registered_settings[$this->setting]['ezwpz']['controls'][$this->id] = $this;
-    $wp_settings_fields[$this->page][$this->section][$this->field]['args']['ezwpz']['controls'][$this->id] = $this->callback;
+
+    $args = [
+      'setting' => $this->setting,
+      'id' => $this->id,
+      'type' => $this->type,
+      'label' => $this->label,
+      'description' => $this->description,
+      'default' => $this->default,
+      'choices' => $this->choices,
+      'input_attrs' => $this->input_attrs,
+    ];
+    $ezwpz_settings_controls[$this->page][$this->section][$this->field][$this->id] = ['id' => $this->id, 'callback' => $this->callback, 'args' => $args];
 
     if (isset($this->setting) && isset($this->sanitize_callback))
       \add_filter("sanitize_option_{$this->setting}", [$this, 'sanitize']);
@@ -180,7 +194,7 @@ class Control {
     return $data;
   }
 
-  public function the_control($is_alone_in_field) {
+  public function the_control($args, $is_alone_in_field) {
     $is_alone_in_setting = $this->is_alone_in_setting();
 
     $value = $this->value();
@@ -237,10 +251,10 @@ class Control {
         echo $description;
         break;
 
-      case 'radio':
-        if (empty($this->choices))
-          return;
-        break;
+//      case 'radio':
+//        if (empty($this->choices))
+//          return;
+//        break;
 
       case 'richtext':
         echo '<p>';

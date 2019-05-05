@@ -64,7 +64,7 @@ class Manager {
     else
       $setting = new Setting($this, $id, $args);
 
-    $this->settings[$id] = $setting;
+    $this->settings[$setting->id] = $setting;
   }
 
   /**
@@ -84,11 +84,7 @@ class Manager {
    * @return bool
    */
   public function remove_setting($id) {
-    if (isset($this->settings[$id])) {
-      unset($this->settings[$id]);
-      return true;
-    }
-    return false;
+    unset($this->settings[$id]);
   }
 
   /**
@@ -111,7 +107,7 @@ class Manager {
     else
       $section = new Section($this, $id, $args);
 
-    $this->sections[$section->page][$id] = $section;
+    $this->sections[$section->page][$section->id] = $section;
   }
 
   /**
@@ -133,11 +129,7 @@ class Manager {
    * @return bool
    */
   public function remove_section($page, $id) {
-    if (isset($this->sections[$page][$id])) {
-      unset($this->sections[$page][$id]);
-      return true;
-    }
-    return false;
+    unset($this->sections[$page][$id]);
   }
 
   /**
@@ -163,7 +155,7 @@ class Manager {
     else
       $field = new Field($this, $id, $args);
 
-    $this->fields[$field->page][$field->section][$id] = $field;
+    $this->fields[$field->page][$field->section][$field->id] = $field;
   }
 
   /**
@@ -187,11 +179,7 @@ class Manager {
    * @return bool
    */
   public function remove_field($page, $section, $id) {
-    if (isset($this->fields[$page][$section][$id])) {
-      unset($this->fields[$page][$section][$id]);
-      return true;
-    }
-    return false;
+    unset($this->fields[$page][$section][$id]);
   }
 
   /**
@@ -219,7 +207,7 @@ class Manager {
     else
       $control = new Control($this, $id, $args);
 
-    $this->controls[$control->page][$control->section][$control->field][$id] = $control;
+    $this->controls[$control->page][$control->section][$control->field][$control->id] = $control;
   }
 
   /**
@@ -245,11 +233,7 @@ class Manager {
    * @return bool
    */
   public function remove_control($page, $section, $field, $id) {
-    if (isset($this->controls[$page][$section][$field][$id])) {
-      unset($this->controls[$page][$section][$field][$id]);
-      return true;
-    }
-    return false;
+    unset($this->controls[$page][$section][$field][$id]);
   }
 
   /**
@@ -262,58 +246,6 @@ class Manager {
           \uasort($controls, [$this, 'sort_priority']);
           foreach ($controls as $control) {
             $control->init();
-          }
-        }
-      }
-    }
-  }
-
-  /**
-   * Add sections, fields, controls, and settings through a config object.
-   * @param string $page
-   * @param string $setting
-   * @param array $config
-   */
-  public function add_by_config($page, $setting, $config) {
-    if (is_string($config) && file_exists($config)) {
-      $config = json_decode(file_get_contents($config), true);
-    }
-
-    if (!is_array($config) || empty($config))
-      return;
-
-    if (isset($setting) && !$this->get_setting($setting))
-      $this->add_setting($setting, ['page' => $page]);
-
-    foreach ($config as $section_id => $section_args) {
-      if (!is_array($section_args))
-        continue;
-
-      $section_args['page'] = $page;
-      $this->add_section($section_id, $section_args);
-
-      if (isset($section_args['fields']) && \is_array($section_args['fields'])) {
-        foreach ($section_args['fields'] as $field_id => $field_args) {
-          if (!\is_array($field_args))
-            continue;
-
-          $field_args['page'] = $page;
-          $field_args['section'] = $section_id;
-          $this->add_field($field_id, $field_args);
-
-          if (isset($field_args['controls']) && \is_array($field_args['controls'])) {
-            foreach ($field_args['controls'] as $control_id => $control_args) {
-              if (!\is_array($field_args))
-                continue;
-
-              $control_args['page'] = $page;
-              $control_args['section'] = $section_id;
-              $control_args['field'] = $field_id;
-              if (isset($setting))
-                $control_args['setting'] = $setting;
-
-              $this->add_control($control_id, $control_args);
-            }
           }
         }
       }

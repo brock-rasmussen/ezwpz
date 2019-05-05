@@ -1,7 +1,7 @@
 <?php
 namespace EZWPZ\Menu;
 
-class Help_Tab {
+class HelpTab {
   /**
    * Menu manager.
    * @var Manager
