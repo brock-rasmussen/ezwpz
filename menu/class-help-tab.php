@@ -54,7 +54,7 @@ class HelpTab {
     if (isset($args['pages']) && is_string($args['pages']))
       $args['pages'] = [$args['pages']];
 
-    $keys = \array_keys(\get_object_vars($this));
+    $keys = array_keys(get_object_vars($this));
     foreach ($keys as $key) {
       if (isset($args[$key])) {
         $this->$key = $args[$key];

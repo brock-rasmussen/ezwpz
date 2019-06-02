@@ -98,7 +98,7 @@ class Control {
    * @param array $args
    */
   public function __construct($manager, $id, $args = []) {
-    $keys = \array_keys(\get_object_vars($this));
+    $keys = array_keys(get_object_vars($this));
     foreach ($keys as $key) {
       if (isset($args[$key])) {
         $this->$key = $args[$key];
@@ -124,7 +124,7 @@ class Control {
     }
 
     if ($this->type === 'textarea') {
-      $this->input_attrs = \wp_parse_args($this->input_attrs, [
+      $this->input_attrs = wp_parse_args($this->input_attrs, [
         'class' => 'large-text',
         'rows' => 10,
         'cols' => 50,
@@ -132,7 +132,7 @@ class Control {
     }
 
     if (in_array($this->type, ['email', 'text', 'url'])) {
-      $this->input_attrs = \wp_parse_args($this->input_attrs, [
+      $this->input_attrs = wp_parse_args($this->input_attrs, [
         'class' => 'regular-text',
       ]);
     }
@@ -170,10 +170,10 @@ class Control {
     $ezwpz_settings_controls[$this->page][$this->section][$this->field][$this->id] = ['id' => $this->id, 'callback' => $this->callback, 'args' => $args];
 
     if (isset($this->setting) && isset($this->sanitize_callback))
-      \add_filter("sanitize_option_{$this->setting}", [$this, 'sanitize']);
+      add_filter("sanitize_option_{$this->setting}", [$this, 'sanitize']);
 
     if (isset($this->setting) && !empty($this->default))
-      \add_filter("default_option_{$this->setting}", [$this, 'set_default']);
+      add_filter("default_option_{$this->setting}", [$this, 'set_default']);
   }
 
   public function sanitize($data) {

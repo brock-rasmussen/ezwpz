@@ -69,7 +69,7 @@ class Page {
    * @param array $args
    */
   public function __construct($manager, $id, $args = []) {
-    $keys = \array_keys(\get_object_vars($this));
+    $keys = array_keys(get_object_vars($this));
     foreach ($keys as $key) {
       if (isset($args[$key])) {
         $this->$key = $args[$key];
@@ -88,12 +88,12 @@ class Page {
    */
   public function init() {
     if (!empty($this->parent_slug))
-      \add_submenu_page($this->parent_slug, $this->page_title, $this->menu_title, $this->capability, $this->id, $this->callback);
+      add_submenu_page($this->parent_slug, $this->page_title, $this->menu_title, $this->capability, $this->id, $this->callback);
     else
-      \add_menu_page($this->page_title, $this->menu_title, $this->capability, $this->id, $this->callback, $this->icon_url, $this->position);
+      add_menu_page($this->page_title, $this->menu_title, $this->capability, $this->id, $this->callback, $this->icon_url, $this->position);
 
     if (!empty($this->submenu_title) && empty($this->parent_slug))
-      \add_submenu_page($this->id, $this->page_title, $this->submenu_title, $this->capability, $this->id, $this->callback);
+      add_submenu_page($this->id, $this->page_title, $this->submenu_title, $this->capability, $this->id, $this->callback);
   }
 
 }

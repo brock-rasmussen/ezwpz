@@ -23,15 +23,15 @@ class Manager {
    * Manager constructor.
    */
   protected function __construct() {
-    \add_action('init', [$this, 'init']);
-    \add_action('admin_menu', [$this, 'init_pages']);
+    add_action('init', [$this, 'init']);
+    add_action('admin_menu', [$this, 'init_pages']);
   }
 
   /**
    * Add action that plugins and themes can tie into to easily access the class.
    */
   public function init() {
-    \do_action('ezwpz_menu', self::get_instance());
+    do_action('ezwpz_menu', self::get_instance());
   }
 
   /**
@@ -62,7 +62,6 @@ class Manager {
   /**
    * Remove a page.
    * @param string $id
-   * @return bool
    */
   public function remove_page($id) {
     unset ($this->pages[$id]);
@@ -72,7 +71,7 @@ class Manager {
    * Initialize Pages.
    */
   public function init_pages() {
-    if (!empty($this->pages) && \is_array($this->pages)) {
+    if (!empty($this->pages) && is_array($this->pages)) {
       foreach ($this->pages as $page) {
         $page->init();
       }

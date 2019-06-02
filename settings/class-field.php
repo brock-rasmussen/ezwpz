@@ -60,7 +60,7 @@ class Field {
    * @param array $args
    */
   public function __construct($manager, $id, $args = []) {
-    $keys = \array_keys(\get_object_vars($this));
+    $keys = array_keys(get_object_vars($this));
     foreach ($keys as $key) {
       if (isset($args[$key])) {
         $this->$key = $args[$key];
@@ -81,7 +81,7 @@ class Field {
    * Add field to section.
    */
   public function init() {
-    \add_settings_field($this->id, $this->title, $this->callback, $this->page, $this->section, [
+    add_settings_field($this->id, $this->title, $this->callback, $this->page, $this->section, [
       'label_for' => $this->label_for,
       'class' => $this->class,
     ]);

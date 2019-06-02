@@ -48,7 +48,7 @@ class Section {
    * @param array $args
    */
   public function __construct($manager, $id, $args = []) {
-    $keys = \array_keys(\get_object_vars($this));
+    $keys = array_keys(get_object_vars($this));
     foreach ($keys as $key) {
       if (isset($args[$key])) {
         $this->$key = $args[$key];
@@ -70,7 +70,7 @@ class Section {
    */
   public function init() {
     global $wp_settings_sections;
-    \add_settings_section($this->id, $this->title, $this->callback, $this->page);
+    add_settings_section($this->id, $this->title, $this->callback, $this->page);
 
     if (!empty($this->description))
       $wp_settings_sections[$this->page][$this->id]['ezwpz']['description'] = $this->description;
@@ -82,7 +82,7 @@ class Section {
    */
   public function the_description($section) {
     if (!empty($section['ezwpz']['description']))
-      echo \apply_filters('the_content', $section['ezwpz']['description']);
+      echo apply_filters('the_content', $section['ezwpz']['description']);
   }
 
 }

@@ -39,18 +39,18 @@ class Manager {
    * Manager constructor.
    */
   protected function __construct() {
-    \add_action('init', [$this, 'init']);
-    \add_action('admin_init', [$this, 'init_settings']);
-    \add_action('admin_init', [$this, 'init_settings_sections']);
-    \add_action('admin_init', [$this, 'init_settings_fields']);
-    \add_action('admin_init', [$this, 'init_settings_controls']);
+    add_action('init', [$this, 'init']);
+    add_action('admin_init', [$this, 'init_settings']);
+    add_action('admin_init', [$this, 'init_settings_sections']);
+    add_action('admin_init', [$this, 'init_settings_fields']);
+    add_action('admin_init', [$this, 'init_settings_controls']);
   }
 
   /**
    * Add action that plugins and themes can tie into to easily access the class.
    */
   public function init() {
-    \do_action('ezwpz_settings', self::get_instance());
+    do_action('ezwpz_settings', self::get_instance());
   }
 
   /**
@@ -81,7 +81,6 @@ class Manager {
   /**
    * Remove a setting.
    * @param string $id
-   * @return bool
    */
   public function remove_setting($id) {
     unset($this->settings[$id]);
@@ -126,7 +125,6 @@ class Manager {
    * Remove a section.
    * @param string $page
    * @param string $id
-   * @return bool
    */
   public function remove_section($page, $id) {
     unset($this->sections[$page][$id]);
@@ -137,7 +135,7 @@ class Manager {
    */
   public function init_settings_sections() {
     foreach ($this->sections as $page => $sections) {
-      \uasort($sections, [$this, 'sort_priority']);
+      uasort($sections, [$this, 'sort_priority']);
       foreach ($sections as $section) {
         $section->init();
       }
@@ -176,7 +174,6 @@ class Manager {
    * @param string $page
    * @param string $section
    * @param string $id
-   * @return bool
    */
   public function remove_field($page, $section, $id) {
     unset($this->fields[$page][$section][$id]);
@@ -188,7 +185,7 @@ class Manager {
   public function init_settings_fields() {
     foreach ($this->fields as $page => $sections) {
       foreach ($sections as $section => $fields) {
-        \uasort($fields, [$this, 'sort_priority']);
+        uasort($fields, [$this, 'sort_priority']);
         foreach ($fields as $field) {
           $field->init();
         }
@@ -230,7 +227,6 @@ class Manager {
    * @param string $section
    * @param string $field
    * @param string $id
-   * @return bool
    */
   public function remove_control($page, $section, $field, $id) {
     unset($this->controls[$page][$section][$field][$id]);
@@ -243,7 +239,7 @@ class Manager {
     foreach ($this->controls as $page => $sections) {
       foreach ($sections as $section => $fields) {
         foreach ($fields as $field => $controls) {
-          \uasort($controls, [$this, 'sort_priority']);
+          uasort($controls, [$this, 'sort_priority']);
           foreach ($controls as $control) {
             $control->init();
           }
@@ -259,9 +255,9 @@ class Manager {
    * @return int
    */
   protected function sort_priority($prev, $curr) {
-    $sort = \strnatcmp($prev->priority, $curr->priority);
+    $sort = strnatcmp($prev->priority, $curr->priority);
     if (!$sort) {
-      $sort = \strnatcmp($prev->instance_number, $curr->instance_number);
+      $sort = strnatcmp($prev->instance_number, $curr->instance_number);
     }
     return $sort;
   }
