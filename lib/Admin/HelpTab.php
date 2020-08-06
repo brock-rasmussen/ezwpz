@@ -2,8 +2,9 @@
 
 namespace EZWPZ\Admin;
 
-class HelpTab
-{
+use EZWPZ\Admin;
+
+class HelpTab {
 	/**
 	 * @see WP_Screen::add_help_tab()
 	 */
@@ -18,63 +19,61 @@ class HelpTab
 	 * @var string|array
 	 * @since 1.0.0
 	 */
-	public $page = [];
+	public $pages = [];
 
 	/**
 	 * Constructor.
+	 *
 	 * @param string $id
 	 * @param array $args ;
+	 *
 	 * @since 1.0.0
 	 */
-	public function __construct($id, $args = [])
-	{
-		$keys = array_keys(get_object_vars($this));
-		foreach ($keys as $key) {
-			if (isset($args[$key])) {
-				$this->$key = $args[$key];
+	public function __construct( $id, $args = [] ) {
+		$keys = array_keys( get_object_vars( $this ) );
+		foreach ( $keys as $key ) {
+			if ( isset( $args[ $key ] ) ) {
+				$this->$key = $args[ $key ];
 			}
 		}
-		$this->id = $id;
-		if (is_array($this->page)) {
-			foreach ($this->page as $page) {
-				add_action("ezwpz_admin_page-{$page}", [$this, 'init'], $this->priority);
-			}
-		} elseif (is_string($this->page)) {
-			add_action("ezwpz_admin_page-{$this->page}", [$this, 'init'], $this->priority);
-		}
+		$this->id    = $id;
+		$this->pages = (array) $this->pages;
+
+		add_action( 'admin_menu', [ $this, 'init' ], PHP_INT_MAX );
 	}
 
 	/**
 	 * Destructor.
 	 * @since 1.0.0
 	 */
-	public function __destruct()
-	{
-		if (is_array($this->page)) {
-			foreach ($this->page as $page) {
-				remove_action("ezwpz_admin_page-{$page}", [$this, 'init'], $this->priority);
-			}
-		} elseif (is_string($this->page)) {
-			remove_action("ezwpz_admin_page-{$this->page}", [$this, 'init'], $this->priority);
+	public function __destruct() {
+		remove_action( 'admin_menu', [ $this, 'init' ], PHP_INT_MAX );
+	}
+
+	/**
+	 * Init help tab on page hooks.
+	 * @since 1.0.0
+	 */
+	public function init() {
+		foreach ( $this->pages as $page_id ) {
+			$page     = Admin::get_instance()->get_page( $page_id );
+			$hookname = $page ? get_plugin_page_hookname( $page->id, $page->parent_slug ) : $page_id;
+			add_action( "load-{$hookname}", [ $this, 'load' ] );
 		}
 	}
 
 	/**
 	 * Add help tab to page.
-	 * @param string $page_id
 	 * @since 1.0.0
 	 */
-	public function init($page_id)
-	{
-		if ((is_array($this->page) && in_array($page_id, $this->page)) || (is_string($this->page) && $page_id === $this->page)) {
-			$screen = get_current_screen();
-			$screen->add_help_tab([
-				'title' => $this->title,
-				'id' => $this->id,
-				'content' => apply_filters('the_content', $this->content),
-				'callback' => $this->callback,
-				'priority' => $this->priority,
-			]);
-		}
+	public function load() {
+		$screen = get_current_screen();
+		$screen->add_help_tab( [
+			'title'    => $this->title,
+			'id'       => $this->id,
+			'content'  => apply_filters( 'the_content', $this->content ),
+			'callback' => $this->callback,
+			'priority' => $this->priority,
+		] );
 	}
 }

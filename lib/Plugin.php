@@ -14,47 +14,39 @@ use EZWPZ\Core\Singleton;
  * @since 1.0.0
  * @package EZWPZ
  */
-class Plugin
-{
+class Plugin {
 	use Singleton;
-
-	/**
-	 * @var Admin
-	 */
-	protected $admin;
 
 	/**
 	 * Constructor.
 	 * @since 1.0.0
 	 */
-	protected function __construct()
-	{
-		$this->admin = new Admin($this);
-		add_action('plugins_loaded', [$this, 'load_plugin_textdomain']);
+	protected function __construct() {
+		Admin::get_instance();
+		Customizer::get_instance();
+
+		add_action( 'plugins_loaded', [ $this, 'load_plugin_textdomain' ] );
 	}
 
 	/**
 	 * Fires during plugin activation.
 	 * @since 1.0.0
 	 */
-	public static function activate()
-	{
+	public static function activate() {
 	}
 
 	/**
 	 * Fires during plugin deactivation.
 	 * @since 1.0.0
 	 */
-	public static function deactivate()
-	{
+	public static function deactivate() {
 	}
 
 	/**
 	 * Define plugin locale for internationalization.
 	 * @since 1.0.0
 	 */
-	public function load_plugin_textdomain()
-	{
+	public function load_plugin_textdomain() {
 		\load_plugin_textdomain(
 			'ezwpz',
 			false,

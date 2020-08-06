@@ -2,8 +2,7 @@
 
 namespace EZWPZ\Admin;
 
-class Section
-{
+class Section {
 	/**
 	 * @see add_settings_section()
 	 */
@@ -27,47 +26,47 @@ class Section
 
 	/**
 	 * Constructor
+	 *
 	 * @param string $id
 	 * @param array $args
+	 *
 	 * @since 1.0.0
 	 */
-	public function __construct($id, $args = [])
-	{
-		$keys = array_keys(get_object_vars($this));
-		foreach ($keys as $key) {
-			if (isset($args[$key])) {
-				$this->$key = $args[$key];
+	public function __construct( $id, $args = [] ) {
+		$keys = array_keys( get_object_vars( $this ) );
+		foreach ( $keys as $key ) {
+			if ( isset( $args[ $key ] ) ) {
+				$this->$key = $args[ $key ];
 			}
 		}
 		$this->id = $id;
-		add_action('admin_init', [$this, 'init'], $this->priority);
+		add_action( 'admin_init', [ $this, 'init' ], $this->priority );
 	}
 
 	/**
 	 * Destructor.
 	 * @since 1.0.0
 	 */
-	public function __destruct()
-	{
-		remove_action('admin_init', [$this, 'init'], $this->priority);
+	public function __destruct() {
+		remove_action( 'admin_init', [ $this, 'init' ], $this->priority );
 	}
 
 	/**
 	 * Add section.
 	 * @since 1.0.0
 	 */
-	public function init()
-	{
-		add_settings_section($this->id, $this->title, [$this, 'render'], $this->page);
+	public function init() {
+		add_settings_section( $this->id, $this->title, [ $this, 'render' ], $this->page );
 	}
 
 	/**
 	 * Render the section description.
+	 *
 	 * @param array $section
 	 */
-	public function render($section)
-	{
-		if (!empty($this->description))
-			echo apply_filters('the_content', $this->description);
+	public function render( $section ) {
+		if ( ! empty( $this->description ) ) {
+			echo apply_filters( 'the_content', $this->description );
+		}
 	}
 }

@@ -17,7 +17,9 @@
  */
 
 // If this file is called directly, abort.
-if (!defined('WPINC')) die;
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
 
 use EZWPZ\Plugin;
 
@@ -25,28 +27,27 @@ use EZWPZ\Plugin;
  * Current plugin version.
  * Start at version 1.0.0 and use SemVer - https://semver.org
  */
-define('EZWPZ_VERSION', '1.0.0');
+define( 'EZWPZ_VERSION', '1.0.0' );
 
 /**
  * Constants to easily grab files for the plugin.
  */
-define('EZWPZ_PLUGIN_DIR', __DIR__);
-define('EZWPZ_PLUGIN_PATH', __FILE__);
+define( 'EZWPZ_PLUGIN_DIR', __DIR__ );
+define( 'EZWPZ_PLUGIN_PATH', __FILE__ );
 
 /**
  * Registers the autoloader.
  */
-require plugin_dir_path(EZWPZ_PLUGIN_PATH) . 'autoload.php';
+require plugin_dir_path( EZWPZ_PLUGIN_PATH ) . 'autoload.php';
 
 /**
  * Runs during plugin activation.
  */
-register_activation_hook(EZWPZ_PLUGIN_PATH, ['EZWPZ\Plugin', 'activate']);
+register_activation_hook( EZWPZ_PLUGIN_PATH, [ 'EZWPZ\Plugin', 'activate' ] );
 
 /**
  * Runs during plugin deactivation.
  */
-register_deactivation_hook(EZWPZ_PLUGIN_PATH, ['EZWPZ\Plugin', 'deactivate']);
-
+register_deactivation_hook( EZWPZ_PLUGIN_PATH, [ 'EZWPZ\Plugin', 'deactivate' ] );
 
 EZWPZ\Plugin::get_instance();

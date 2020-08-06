@@ -2,8 +2,7 @@
 
 namespace EZWPZ\Admin;
 
-class Page
-{
+class Page {
 	/**
 	 * @see add_menu_page()
 	 */
@@ -35,86 +34,93 @@ class Page
 
 	/**
 	 * Constructor.
+	 *
 	 * @param string $id
 	 * @param array $args ;
+	 *
 	 * @since 1.0.0
 	 */
-	public function __construct($id, $args = [])
-	{
-		$keys = array_keys(get_object_vars($this));
-		foreach ($keys as $key) {
-			if (isset($args[$key])) {
-				$this->$key = $args[$key];
+	public function __construct( $id, $args = [] ) {
+		$keys = array_keys( get_object_vars( $this ) );
+		foreach ( $keys as $key ) {
+			if ( isset( $args[ $key ] ) ) {
+				$this->$key = $args[ $key ];
 			}
 		}
 		$this->id = $id;
-		add_action('admin_menu', [$this, 'init']);
+		add_action( 'admin_menu', [ $this, 'init' ] );
 	}
 
 	/**
 	 * Destructor.
 	 * @since 1.0.0
 	 */
-	public function __destruct()
-	{
-		remove_action('admin_menu', [$this, 'init']);
+	public function __destruct() {
+		remove_action( 'admin_menu', [ $this, 'init' ] );
 	}
 
 	/**
 	 * Add page to menu.
 	 * @since 1.0.0
 	 */
-	public function init()
-	{
-		if (!empty($this->parent_slug))
-			$this->hook_suffix = add_submenu_page($this->parent_slug, $this->page_title, $this->menu_title, $this->capability, $this->id, [$this, 'render']);
-		else
-			$this->hook_suffix = add_menu_page($this->page_title, $this->menu_title, $this->capability, $this->id, [$this, 'render'], $this->icon_url, $this->position);
+	public function init() {
+		if ( ! empty( $this->parent_slug ) ) {
+			$this->hook_suffix = add_submenu_page( $this->parent_slug, $this->page_title, $this->menu_title, $this->capability, $this->id, [
+				$this,
+				'render'
+			] );
+		} else {
+			$this->hook_suffix = add_menu_page( $this->page_title, $this->menu_title, $this->capability, $this->id, [
+				$this,
+				'render'
+			], $this->icon_url, $this->position );
+		}
 
-		if (!empty($this->submenu_title) && empty($this->parent_slug))
-			add_submenu_page($this->id, $this->page_title, $this->submenu_title, $this->capability, $this->id, [$this, 'render']);
+		if ( ! empty( $this->submenu_title ) && empty( $this->parent_slug ) ) {
+			add_submenu_page( $this->id, $this->page_title, $this->submenu_title, $this->capability, $this->id, [
+				$this,
+				'render'
+			] );
+		}
 
-		add_action("load-{$this->hook_suffix}", [$this, 'load']);
+		add_action( "load-{$this->hook_suffix}", [ $this, 'load' ] );
 	}
 
 	/**
 	 * Add action that can be tied into for page load.
 	 * @since 1.0.0
 	 */
-	public function load()
-	{
-		do_action("ezwpz_admin_page-{$this->id}");
-		add_action('admin_enqueue_scripts', [$this, 'enqueue_scripts']);
+	public function load() {
+		do_action( "ezwpz_admin_page_load-{$this->id}", $this->id );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_scripts' ] );
 	}
 
 	/**
 	 * Add action that can be tied into to add scripts/styles for this page.
 	 * @since 1.0.0
 	 */
-	public function enqueue_scripts($hook_suffix)
-	{
-		do_action("ezwpz_admin_page_enqueue-{$this->id}");
+	public function enqueue_scripts( $hook_suffix ) {
+		do_action( "ezwpz_admin_page_enqueue-{$this->id}" );
 	}
 
 	/**
 	 * Render the page.
 	 * @since 1.0.0
 	 */
-	public function render()
-	{
+	public function render() {
 		?>
 		<div class="wrap">
-			<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+			<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 			<form method="post" action="/wp-admin/options.php">
 				<?php
-				settings_fields($this->id);
-				do_settings_sections($this->id);
+				settings_fields( $this->id );
+				do_settings_sections( $this->id );
 
 				ob_start();
-				do_settings_fields($this->id, 'default');
+				do_settings_fields( $this->id, 'default' );
 				$default_fields = ob_get_clean();
 				?>
-				<?php if (!empty($default_fields)) : ?>
+				<?php if ( ! empty( $default_fields ) ) : ?>
 					<table class="form-table">
 						<?php echo $default_fields; ?>
 					</table>
